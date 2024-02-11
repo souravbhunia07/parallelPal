@@ -27,25 +27,31 @@ import { FileUpload } from "../file-upload";
 import axios from "axios";
 import { useRouter } from 'next/navigation';
 
+// Define the validation schema for the form using Zod.
 const formSchema = z.object({
     name: z.string().min(1, {
-        message: "server name is required."
+        message: "Server name is required."
     }),
     imageUrl: z.string().min(1, {
-        message: "server image is required."
+        message: "Server image is required."
     })
 });
 
+// Define the component for the initial modal.
 export const InitialModal = () => {
 
+    // State to track if the component is mounted.
     const [isMounted, setIsMounted] = useState(false);
 
+    // Next.js router hook for navigation.
     const router = useRouter();
 
+    // Effect to set isMounted to true after component mounting.
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
+    // Create a form using react-hook-form.
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -54,25 +60,35 @@ export const InitialModal = () => {
         }
     });
 
+    // Check if the form is currently submitting.
     const isLoading = form.formState.isSubmitting;
 
-    const onSubmit =async (values:z.infer<typeof formSchema>) => {
-        
+    // Define the form submission function.
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
+            // Make a POST request to the server API with form values.
             await axios.post("/api/servers", values);
+            
+            // Reset the form after successful submission.
             form.reset();
+
+            // Refresh the Next.js router to update the page.
             router.refresh();
+
+            // Reload the entire window to ensure any client-side changes take effect.
             window.location.reload(); // Reloads the current URL, like the Refresh button
         } catch (error) {
-            console.log(error)
+            // Log any errors that occur during form submission.
+            console.log(error);
         }
     }
 
-    if(!isMounted)  // To remove hydration error
-    {
+    // If the component is not yet mounted, return null to avoid hydration errors.
+    if(!isMounted) {
         return null;
     }
 
+    // Render the modal dialog with form inputs.
     return (
         <Dialog open={true}>
             <DialogContent className="bg-white text-black p-0 overflow-hidden">
@@ -81,13 +97,14 @@ export const InitialModal = () => {
                         Customize your server! 
                     </DialogTitle>
                     <DialogDescription>
-                        Give your server a personality with a name and an image. you can always change it later!
+                        Give your server a personality with a name and an image. You can always change it later!
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <div className="space-y-8 px-6">
                             <div className="flex items-center justify-center text-center">
+                                {/* File upload input for server image */}
                                 <FormField 
                                     control={form.control}
                                     name="imageUrl"
@@ -105,6 +122,7 @@ export const InitialModal = () => {
                                 />
                             </div>
 
+                            {/* Form field for server name */}
                             <FormField 
                                 control={form.control}
                                 name="name"
@@ -116,6 +134,7 @@ export const InitialModal = () => {
                                             Server name
                                         </FormLabel>
                                         <FormControl>
+                                            {/* Input for entering server name */}
                                             <Input
                                                 disabled={isLoading}
                                                 className="bg-zinc-300/50 border-0 focus-visible::ring-0 text-black focus-visible:ring-offset-0"
@@ -128,6 +147,7 @@ export const InitialModal = () => {
                                 )}
                             />
                         </div>
+                        {/* Form submission button */}
                         <DialogFooter className="bg-gray-100 px-6 py-4">
                             <Button variant="primary" disabled={isLoading}>
                                 Create
@@ -137,5 +157,5 @@ export const InitialModal = () => {
                 </Form>
             </DialogContent>
         </Dialog>
-    )
+    );
 }
