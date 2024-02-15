@@ -1,10 +1,11 @@
 // Importing necessary modules and functions
 import { currentProfilePages } from "@/lib/current-profile-pages";
 import { db } from "@/lib/db";
+import { NextApiResponseServerIo } from "@/types";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // Defining the main API endpoint handler
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponseServerIo) {
     // Checking if the HTTP method is not POST
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
